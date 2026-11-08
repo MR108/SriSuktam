@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#b3261e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sri Suktam">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<title>Sri Suktam Sadhana Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Serif+Devanagari:wght@400;600&family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbf6ef; --card:#ffffff; --ink:#2a1a12; --muted:#7a6558; --line:#ecdfd2;
+  --accent:#b3261e; --accent-2:#e07a1f; --gold:#c8962b; --soft:#fbeee4;
+  --ok:#2e7d4f; --ok-soft:#e3f2e8; --part:#f1c27d; --miss:#e8c9c4; --future:#f1ebe4;
+  --shadow:0 1px 2px rgba(60,30,10,.06),0 4px 16px rgba(60,30,10,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#1a1210; --card:#241a16; --ink:#f4e9df; --muted:#b9a496; --line:#3a2c25;
+  --accent:#ef6b5f; --accent-2:#f29a4a; --gold:#e0b552; --soft:#33231c;
+  --ok:#6fcf97; --ok-soft:#1f3a2a; --part:#9a7032; --miss:#5a2f2b; --future:#2d221d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Telugu",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:10px}
+.lotus{width:38px;height:38px}
+h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em}
+.sub{font-size:13px;color:var(--muted);margin-top:2px}
+.sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.on{background:var(--ok)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.ring{width:108px;height:108px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .num b{font-size:26px;line-height:1}
+.ring .num span{font-size:11px;color:var(--muted);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--soft);border-radius:12px;padding:10px}
+.stat b{display:block;font-size:18px}
+.stat span{font-size:11.5px;color:var(--muted)}
+@media (max-width:520px){.hero{grid-template-columns:1fr;justify-items:center;text-align:center}.hero>div:last-child{width:100%}}
+.milestones{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+.milestones b{color:var(--ink);font-weight:600}
+.dayhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
+.dayhead h2{font-size:16px;margin:0}
+.navbtn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;width:34px;height:34px;font-size:16px;cursor:pointer}
+.navbtn:disabled{opacity:.3;cursor:default}
+.badge{display:inline-block;font-size:11.5px;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--muted);font-weight:600}
+.badge.done{background:var(--ok-soft);color:var(--ok)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--soft);padding:4px;border-radius:12px;margin-bottom:14px}
+.tab{border:0;background:transparent;padding:10px;border-radius:9px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;display:flex;justify-content:center;align-items:center;gap:6px}
+.tab.active{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.tab .mini{font-size:11.5px;font-weight:500}
+.tab .tick{color:var(--ok)}
+.counter{display:flex;flex-direction:column;align-items:center;padding:6px 0 4px}
+.beads{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:6px 0 16px;max-width:360px}
+.bead{width:22px;height:22px;border-radius:50%;border:2px solid var(--gold);background:transparent;transition:.2s}
+.bead.full{background:radial-gradient(circle at 35% 35%,#ffd98a,var(--gold) 60%,#8a5d12);border-color:#8a5d12}
+.tap{width:170px;height:170px;border-radius:50%;border:0;cursor:pointer;color:#fff;font:inherit;
+  background:radial-gradient(circle at 35% 30%,var(--accent-2),var(--accent) 70%);box-shadow:0 8px 24px rgba(179,38,30,.35);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .08s;user-select:none;-webkit-tap-highlight-color:transparent}
+.tap:active{transform:scale(.96)}
+.tap b{font-size:46px;line-height:1}
+.tap span{font-size:13px;opacity:.9;margin-top:4px}
+.tap.complete{background:radial-gradient(circle at 35% 30%,#5cc18a,var(--ok) 70%);box-shadow:0 8px 24px rgba(46,125,79,.35)}
+.row{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;border-radius:11px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.4;cursor:default}
+.checks{display:grid;gap:8px;margin-top:16px}
+.check{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;user-select:none}
+.check input{width:20px;height:20px;accent-color:var(--ok);margin:0}
+.check .lbl{flex:1;font-size:14px}
+.check .lbl small{display:block;color:var(--muted);font-size:12px}
+.timer{font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;padding:6px 10px;border-radius:9px;background:var(--soft);border:0;color:var(--ink);cursor:pointer;font-family:inherit}
+.makeup{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-top:14px;justify-content:center}
+.makeup input{accent-color:var(--accent)}
+.celebrate{display:none;text-align:center;padding:12px;border-radius:12px;background:var(--ok-soft);color:var(--ok);font-weight:600;margin-top:14px}
+.celebrate.show{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:4px;margin-top:10px}
+.cell{aspect-ratio:1;border-radius:3px;background:var(--future);border:0;padding:0;cursor:pointer}
+.cell.done{background:var(--ok)} .cell.part{background:var(--part)} .cell.miss{background:var(--miss)}
+.cell.today{outline:2px solid var(--accent);outline-offset:1px}
+.cell.sel{outline:2px solid var(--ink);outline-offset:1px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.sectitle{display:flex;justify-content:space-between;align-items:center}
+.sectitle h3{margin:0;font-size:15px}
+.seg{display:inline-flex;background:var(--soft);border-radius:9px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;font:inherit;font-size:12.5px;padding:6px 10px;border-radius:7px;color:var(--muted);cursor:pointer;font-weight:600}
+.seg button.active{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+/* reader */
+.reader{position:fixed;inset:0;background:var(--bg);z-index:20;display:none;flex-direction:column}
+.reader.open{display:flex}
+.rtop{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+.rtop .t{font-weight:700;font-size:14px}
+.rtop .t small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.rbody{flex:1;overflow-y:auto;padding:18px 16px 140px}
+.rinner{max-width:680px;margin:0 auto}
+.verse{padding:16px 0;border-bottom:1px dashed var(--line);scroll-margin-top:20px}
+.verse .vn{font-size:12px;color:var(--gold);font-weight:700;margin-bottom:6px}
+.verse .ln{line-height:1.85}
+.verse.lit{background:linear-gradient(90deg,var(--soft),transparent);border-radius:10px;padding-left:10px;margin-left:-10px}
+.s-tel{font-family:"Noto Sans Telugu",sans-serif}
+.s-dev{font-family:"Noto Serif Devanagari",serif}
+.s-iast{font-family:"Noto Serif",serif;font-style:italic}
+.invocation{text-align:center;color:var(--accent);font-weight:600;margin:6px 0 4px}
+.rbar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));z-index:21;display:none}
+.reader.open + .rbar{display:block}
+.rbar .in{max-width:680px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.rbar .prog{flex:1;font-size:13px;color:var(--muted)}
+.rbar .prog b{color:var(--ink);font-size:16px}
+.fab{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;box-shadow:0 8px 24px rgba(179,38,30,.3);padding:13px 20px;border-radius:999px;font-size:15px}
+.settings summary{cursor:pointer;font-weight:600;font-size:14px}
+.settings label{display:block;font-size:13px;color:var(--muted);margin-top:12px}
+.settings input[type=date]{font:inherit;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin-top:4px}
+.note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:10px}
+.rems{display:grid;gap:8px;margin-top:12px}
+.rem{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.rem .ic{font-size:20px}
+.rem .tx{flex:1;font-size:14px;font-weight:600}
+.rem .tx small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.rem input[type=time]{font:inherit;font-size:14px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:118px}
+.rem a{font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;transition:.25s;z-index:50}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg class="lotus" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round"><path d="M32 12c6 7 6 21 0 30-6-9-6-23 0-30z" fill="var(--soft)"/><path d="M32 42c-5-9-14-15-22-14 1 9 10 15 22 14z"/><path d="M32 42c5-9 14-15 22-14-1 9-10 15-22 14z"/><path d="M14 46c6 4 30 4 36 0" stroke="var(--gold)"/></g></svg>
+      <div><h1>శ్రీసూక్త సాధన</h1><div class="sub">960-day Sri Suktam nitya karma</div></div>
+    </div>
+    <div class="sync"><span class="dot" id="syncDot"></span><span id="syncTxt"></span></div>
+  </header>
+
+  <section class="card hero">
+    <div class="ring">
+      <svg width="108" height="108" viewBox="0 0 108 108"><circle cx="54" cy="54" r="46" stroke="var(--line)" stroke-width="9" fill="none"/><circle id="ringArc" cx="54" cy="54" r="46" stroke="var(--accent)" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"/></svg>
+      <div class="num"><b id="dayNum">–</b><span>of 960 days</span></div>
+    </div>
+    <div>
+      <div class="stats">
+        <div class="stat"><b id="sDone">0</b><span>days complete</span></div>
+        <div class="stat"><b id="sStreak">0</b><span>current streak</span></div>
+        <div class="stat"><b id="sMiss">0</b><span>days to make up</span></div>
+      </div>
+      <div class="milestones" id="miles"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="dayhead">
+      <button class="navbtn" id="prevDay" aria-label="Previous day">‹</button>
+      <div style="text-align:center;flex:1">
+        <h2 id="dayTitle">Today</h2>
+        <div style="margin-top:4px"><span class="badge" id="dayBadge">In progress</span></div>
+      </div>
+      <button class="navbtn" id="nextDay" aria-label="Next day">›</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" data-s="m">☀️ Morning <span class="mini" id="tabM"></span></button>
+      <button class="tab" data-s="e">🪔 Evening <span class="mini" id="tabE"></span></button>
+    </div>
+
+    <div class="counter">
+      <div class="beads" id="beads"></div>
+      <button class="tap" id="tap"><b id="tapNum">0</b><span id="tapLbl">tap after each recitation</span></button>
+      <div class="row">
+        <button class="btn primary" id="openReader">📖 Read along</button>
+        <button class="btn ghost" id="undo">↶ Undo</button>
+      </div>
+    </div>
+
+    <div class="checks" id="checks"></div>
+
+    <label class="makeup"><input type="checkbox" id="makeup"> Make-up day (double the count, per the book's rule)</label>
+    <div class="celebrate" id="celebrate">🙏 Day complete. శ్రీర్మా దేవీ జుషతామ్.</div>
+  </section>
+
+  <section class="card">
+    <div class="sectitle"><h3>Your journey</h3><span class="badge" id="gridInfo"></span></div>
+    <div class="grid" id="grid"></div>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i>Complete</span>
+      <span><i style="background:var(--part)"></i>Partial</span>
+      <span><i style="background:var(--miss)"></i>Missed</span>
+      <span><i style="background:var(--future)"></i>Ahead</span>
+    </div>
+    <div class="note">Tap any past day to open it — useful if you chanted but forgot to log it.</div>
+  </section>
+
+  <section class="card" id="remCard">
+    <div class="sectitle"><h3>🔔 Daily reminders</h3><span class="badge" id="pushBadge"></span></div>
+    <div class="rems" id="rems"></div>
+    <div id="pushBox" style="margin-top:12px"></div>
+    <details style="margin-top:14px">
+      <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)">Backup option: add the reminders to your calendar</summary>
+      <div class="row" style="justify-content:flex-start;margin-top:10px">
+        <button class="btn" id="icsBtn" type="button">📅 Calendar file (iPhone)</button>
+        <span id="gcalLinks" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"></span>
+      </div>
+      <div class="note"><b>iPhone:</b> open the downloaded file → “Add All”. <b>Android:</b> tap each Google link → Save, and set its notification to “At time of event”.</div>
+    </details>
+  </section>
+
+  <section class="card settings">
+    <details>
+      <summary>Settings</summary>
+      <label>Start date (Day 1)<br><input type="date" id="startDate"></label>
+      <label>Script for reading</label>
+      <div class="seg" id="scriptSeg" style="margin-top:6px">
+        <button data-v="tel">తెలుగు</button><button data-v="dev">देवनागरी</button><button data-v="iast">IAST</button>
+      </div>
+      <label>Backup &amp; restore</label>
+      <div class="row" style="justify-content:flex-start;margin-top:6px">
+        <button class="btn" id="backupBtn" type="button">⬇ Download backup</button>
+        <button class="btn ghost" id="restoreBtn" type="button">⬆ Restore</button>
+        <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+      </div>
+      <div class="note" id="backupNote"></div>
+      <div class="note">Your progress is stored in this browser only. Clearing browser data or switching phones will lose it, so keep a backup file (e.g. in Google Drive) and restore it on a new device.</div>
+      <div class="note">Routine from Om Swami's <i>Sri Suktam Sadhana</i>: bathe, lamp, saffron tilak, Sri Suktam ×11 and 5-minute meditation in the morning; lamp, Sri Suktam ×5 and 5-minute meditation at night. Vegetarian throughout. If you miss a day for genuine illness or travel, do double the next day. After 960 days, the 16-night puruscharana starts on Diwali night.</div>
+    </details>
+  </section>
+</div>
+
+
+<div class="reader" id="reader">
+  <div class="rtop">
+    <button class="btn ghost" id="closeReader">✕</button>
+    <div class="t" style="text-align:center">శ్రీసూక్తమ్<small id="rSub"></small></div>
+    <div style="display:flex;gap:6px">
+      <button class="btn ghost" id="fontDown" aria-label="Smaller text">A−</button>
+      <button class="btn ghost" id="fontUp" aria-label="Larger text">A+</button>
+    </div>
+  </div>
+  <div class="rbody" id="rbody"><div class="rinner">
+    <div class="seg" id="rScriptSeg" style="display:flex;justify-content:center;margin:0 auto 10px;width:max-content">
+      <button data-v="tel">తెలుగు</button><button data-v="dev">देवनागरी</button><button data-v="iast">IAST</button>
+    </div>
+    <div class="invocation" id="invoc"></div>
+    <div id="verses"></div>
+  </div></div>
+</div>
+<div class="rbar"><div class="in">
+  <div class="prog" id="rProg"></div>
+  <button class="btn primary" id="rDone">✓ Recitation done</button>
+</div></div>
+
+<script>
+const VERSES = [{"dev": ["हिरण्यवर्णां हरिणीं सुवर्णरजतस्रजाम् ।", "चन्द्रां हिरण्मयीं लक्ष्मीं जातवेदो म आवह ॥"], "tel": ["హిరణ్యవర్ణాం హరిణీం సువర్ణరజతస్రజామ్ ।", "చన్ద్రాం హిరణ్మయీం లక్ష్మీం జాతవేదో మ ఆవహ ॥"], "iast": ["hiraṇyavarṇāṃ hariṇīṃ suvarṇarajatasrajām ।", "candrāṃ hiraṇmayīṃ lakṣmīṃ jātavedo ma āvaha ॥"]}, {"dev": ["तां म आवह जातवेदो लक्ष्मीमनपगामिनीम् ।", "यस्यां हिरण्यं विन्देयं गामश्वं पुरुषानहम् ॥"], "tel": ["తాం మ ఆవహ జాతవేదో లక్ష్మీమనపగామినీమ్ ।", "యస్యాం హిరణ్యం విన్దేయం గామశ్వం పురుషానహమ్ ॥"], "iast": ["tāṃ ma āvaha jātavedo lakṣmīmanapagāminīm ।", "yasyāṃ hiraṇyaṃ vindeyaṃ gāmaśvaṃ puruṣānaham ॥"]}, {"dev": ["अश्वपूर्वां रथमध्यां हस्तिनादप्रबोधिनीम् ।", "श्रियं देवीमुपह्वये श्रीर्मा देवी जुषताम् ॥"], "tel": ["అశ్వపూర్వాం రథమధ్యాం హస్తినాదప్రబోధినీమ్ ।", "శ్రియం దేవీముపహ్వయే శ్రీర్మా దేవీ జుషతామ్ ॥"], "iast": ["aśvapūrvāṃ rathamadhyāṃ hastinādaprabodhinīm ।", "śriyaṃ devīmupahvaye śrīrmā devī juṣatām ॥"]}, {"dev": ["कां सोस्मितां हिरण्यप्राकारामार्द्रां ज्वलन्तीं तृप्तां तर्पयन्तीम् ।", "पद्मे स्थितां पद्मवर्णां तामिहोपह्वये श्रियम् ॥"], "tel": ["కాం సోస్మితాం హిరణ్యప్రాకారామార్ద్రాం జ్వలన్తీం తృప్తాం తర్పయన్తీమ్ ।", "పద్మే స్థితాం పద్మవర్ణాం తామిహోపహ్వయే శ్రియమ్ ॥"], "iast": ["kāṃ sosmitāṃ hiraṇyaprākārāmārdrāṃ jvalantīṃ tṛptāṃ tarpayantīm ।", "padme sthitāṃ padmavarṇāṃ tāmihopahvaye śriyam ॥"]}, {"dev": ["चन्द्रां प्रभासां यशसा ज्वलन्तीं श्रियं लोके देवजुष्टामुदाराम् ।", "तां पद्मिनीमीं शरणमहं प्रपद्येऽलक्ष्मीर्मे नश्यतां त्वां वृणे ॥"], "tel": ["చన్ద్రాం ప్రభాసాం యశసా జ్వలన్తీం శ్రియం లోకే దేవజుష్టాముదారామ్ ।", "తాం పద్మినీమీం శరణమహం ప్రపద్యేఽలక్ష్మీర్మే నశ్యతాం త్వాం వృణే ॥"], "iast": ["candrāṃ prabhāsāṃ yaśasā jvalantīṃ śriyaṃ loke devajuṣṭāmudārām ।", "tāṃ padminīmīṃ śaraṇamahaṃ prapadye'lakṣmīrme naśyatāṃ tvāṃ vṛṇe ॥"]}, {"dev": ["आदित्यवर्णे तपसोऽधिजातो वनस्पतिस्तव वृक्षोऽथ बिल्वः ।", "तस्य फलानि तपसानुदन्तु मायान्तरायाश्च बाह्या अलक्ष्मीः ॥"], "tel": ["ఆదిత్యవర్ణే తపసోఽధిజాతో వనస్పతిస్తవ వృక్షోఽథ బిల్వః ।", "తస్య ఫలాని తపసానుదన్తు మాయాన్తరాయాశ్చ బాహ్యా అలక్ష్మీః ॥"], "iast": ["ādityavarṇe tapaso'dhijāto vanaspatistava vṛkṣo'tha bilvaḥ ।", "tasya phalāni tapasānudantu māyāntarāyāśca bāhyā alakṣmīḥ ॥"]}, {"dev": ["उपैतु मां देवसखः कीर्तिश्च मणिना सह ।", "प्रादुर्भूतोऽस्मि राष्ट्रेऽस्मिन् कीर्तिमृद्धिं ददातु मे ॥"], "tel": ["ఉపైతు మాం దేవసఖః కీర్తిశ్చ మణినా సహ ।", "ప్రాదుర్భూతోఽస్మి రాష్ట్రేఽస్మిన్ కీర్తిమృద్ధిం దదాతు మే ॥"], "iast": ["upaitu māṃ devasakhaḥ kīrtiśca maṇinā saha ।", "prādurbhūto'smi rāṣṭre'smin kīrtimṛddhiṃ dadātu me ॥"]}, {"dev": ["क्षुत्पिपासामलां ज्येष्ठामलक्ष्मीं नाशयाम्यहम् ।", "अभूतिमसमृद्धिं च सर्वां निर्णुद मे गृहात् ॥"], "tel": ["క్షుత్పిపాసామలాం జ్యేష్ఠామలక్ష్మీం నాశయామ్యహమ్ ।", "అభూతిమసమృద్ధిం చ సర్వాం నిర్ణుద మే గృహాత్ ॥"], "iast": ["kṣutpipāsāmalāṃ jyeṣṭhāmalakṣmīṃ nāśayāmyaham ।", "abhūtimasamṛddhiṃ ca sarvāṃ nirṇuda me gṛhāt ॥"]}, {"dev": ["गन्धद्वारां दुराधर्षां नित्यपुष्टां करीषिणीम् ।", "ईश्वरीं सर्वभूतानां तामिहोपह्वये श्रियम् ॥"], "tel": ["గన్ధద్వారాం దురాధర్షాం నిత్యపుష్టాం కరీషిణీమ్ ।", "ఈశ్వరీం సర్వభూతానాం తామిహోపహ్వయే శ్రియమ్ ॥"], "iast": ["gandhadvārāṃ durādharṣāṃ nityapuṣṭāṃ karīṣiṇīm ।", "īśvarīṃ sarvabhūtānāṃ tāmihopahvaye śriyam ॥"]}, {"dev": ["मनसः काममाकूतिं वाचः सत्यमशीमहि ।", "पशूनां रूपमन्नस्य मयि श्रीः श्रयतां यशः ॥"], "tel": ["మనసః కామమాకూతిం వాచః సత్యమశీమహి ।", "పశూనాం రూపమన్నస్య మయి శ్రీః శ్రయతాం యశః ॥"], "iast": ["manasaḥ kāmamākūtiṃ vācaḥ satyamaśīmahi ।", "paśūnāṃ rūpamannasya mayi śrīḥ śrayatāṃ yaśaḥ ॥"]}, {"dev": ["कर्दमेन प्रजाभूता मयि सम्भव कर्दम ।", "श्रियं वासय मे कुले मातरं पद्ममालिनीम् ॥"], "tel": ["కర్దమేన ప్రజాభూతా మయి సమ్భవ కర్దమ ।", "శ్రియం వాసయ మే కులే మాతరం పద్మమాలినీమ్ ॥"], "iast": ["kardamena prajābhūtā mayi sambhava kardama ।", "śriyaṃ vāsaya me kule mātaraṃ padmamālinīm ॥"]}, {"dev": ["आपः सृजन्तु स्निग्धानि चिक्लीत वस मे गृहे ।", "नि च देवीं मातरं श्रियं वासय मे कुले ॥"], "tel": ["ఆపః సృజన్తు స్నిగ్ధాని చిక్లీత వస మే గృహే ।", "ని చ దేవీం మాతరం శ్రియం వాసయ మే కులే ॥"], "iast": ["āpaḥ sṛjantu snigdhāni ciklīta vasa me gṛhe ।", "ni ca devīṃ mātaraṃ śriyaṃ vāsaya me kule ॥"]}, {"dev": ["आर्द्रां पुष्करिणीं पुष्टिं पिङ्गलां पद्ममालिनीम् ।", "चन्द्रां हिरण्मयीं लक्ष्मीं जातवेदो म आवह ॥"], "tel": ["ఆర్ద్రాం పుష్కరిణీం పుష్టిం పిఙ్గలాం పద్మమాలినీమ్ ।", "చన్ద్రాం హిరణ్మయీం లక్ష్మీం జాతవేదో మ ఆవహ ॥"], "iast": ["ārdrāṃ puṣkariṇīṃ puṣṭiṃ piṅgalāṃ padmamālinīm ।", "candrāṃ hiraṇmayīṃ lakṣmīṃ jātavedo ma āvaha ॥"]}, {"dev": ["आर्द्रां यः करिणीं यष्टिं सुवर्णां हेममालिनीम् ।", "सूर्यां हिरण्मयीं लक्ष्मीं जातवेदो म आवह ॥"], "tel": ["ఆర్ద్రాం యః కరిణీం యష్టిం సువర్ణాం హేమమాలినీమ్ ।", "సూర్యాం హిరణ్మయీం లక్ష్మీం జాతవేదో మ ఆవహ ॥"], "iast": ["ārdrāṃ yaḥ kariṇīṃ yaṣṭiṃ suvarṇāṃ hemamālinīm ।", "sūryāṃ hiraṇmayīṃ lakṣmīṃ jātavedo ma āvaha ॥"]}, {"dev": ["तां म आवह जातवेदो लक्ष्मीमनपगामिनीम् ।", "यस्यां हिरण्यं प्रभूतं गावो दास्योऽश्वान् विन्देयं पूरुषानहम् ॥"], "tel": ["తాం మ ఆవహ జాతవేదో లక్ష్మీమనపగామినీమ్ ।", "యస్యాం హిరణ్యం ప్రభూతం గావో దాస్యోఽశ్వాన్ విన్దేయం పూరుషానహమ్ ॥"], "iast": ["tāṃ ma āvaha jātavedo lakṣmīmanapagāminīm ।", "yasyāṃ hiraṇyaṃ prabhūtaṃ gāvo dāsyo'śvān vindeyaṃ pūruṣānaham ॥"]}, {"dev": ["यः शुचिः प्रयतो भूत्वा जुहुयादाज्यमन्वहम् ।", "सूक्तं पञ्चदशर्चं च श्रीकामः सततं जपेत् ॥"], "tel": ["యః శుచిః ప్రయతో భూత్వా జుహుయాదాజ్యమన్వహమ్ ।", "సూక్తం పఞ్చదశర్చం చ శ్రీకామః సతతం జపేత్ ॥"], "iast": ["yaḥ śuciḥ prayato bhūtvā juhuyādājyamanvaham ।", "sūktaṃ pañcadaśarcaṃ ca śrīkāmaḥ satataṃ japet ॥"]}];
+const TOTAL = 960;
+const pad = n => String(n).padStart(2,'0');
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const diffDays = (a,b) => Math.round((parseKey(keyOf(b)) - parseKey(keyOf(a)))/86400000);
+const fmt = (d,o={day:'numeric',month:'short',year:'numeric'}) => d.toLocaleDateString('en-IN',o);
+
+// ---------- state ----------
+let settings = { start: '2026-11-08', script: 'tel', font: 20 };
+let days = {};               // key -> {m,e,mm,em,bath,lamp,tilak,elamp,makeup}
+let todayKey = keyOf(new Date());
+let selKey = todayKey;
+let session = new Date().getHours() < 15 ? 'm' : 'e';
+let store = null;            // remote collection
+let mode = 'local';
+
+function blank(){ return {m:0,e:0,mm:false,em:false,bath:false,lamp:false,tilak:false,elamp:false,makeup:false}; }
+function day(k){ return Object.assign(blank(), days[k]||{}); }
+function targets(d){ const x = d.makeup ? 2 : 1; return {m:11*x, e:5*x}; }
+function isDone(d){ const t = targets(d); return d.m>=t.m && d.e>=t.e && d.mm && d.em; }
+function hasAny(d){ return d.m||d.e||d.mm||d.em; }
+
+// ---------- persistence ----------
+const LS = 'srisuktam.v1';
+function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify({settings,days})); }catch(e){} }
+function loadLocal(){ try{ const j = JSON.parse(localStorage.getItem(LS)||'null'); if(j){ settings = Object.assign(settings,j.settings||{}); days = j.days||{}; } }catch(e){} }
+
+function saveDay(k){ saveLocal(); if(typeof sendStatus === 'function' && k === keyOf(new Date())) sendStatus(); }
+function saveSettings(){ saveLocal(); }
+function setSync(){
+  let ok = true; try{ localStorage.setItem('srisuktam.t','1'); }catch(e){ ok = false; }
+  document.getElementById('syncDot').className = 'dot' + (ok ? ' on' : '');
+  document.getElementById('syncTxt').textContent = ok ? 'Saved on this device' : 'Storage blocked';
+}
+function connect(){ loadLocal(); render(); setSync(); }
+
+// backup / restore
+function backup(){
+  const data = JSON.stringify({app:'srisuktam', version:1, exported:new Date().toISOString(), settings, days}, null, 1);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+  a.download = `sri-suktam-backup-${keyOf(new Date())}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  try{ localStorage.setItem('srisuktam.lastBackup', keyOf(new Date())); }catch(e){}
+  renderBackupNote(); toast('Backup downloaded');
+}
+function restore(file){
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const j = JSON.parse(r.result);
+      if(j.app !== 'srisuktam' || !j.days) throw 0;
+      settings = Object.assign(settings, j.settings||{}); days = j.days; saveLocal(); render(); toast('Restored ' + Object.keys(days).length + ' days');
+    }catch(e){ toast('That file is not a Sri Suktam backup'); }
+  };
+  r.readAsText(file);
+}
+function renderBackupNote(){
+  let last = null; try{ last = localStorage.getItem('srisuktam.lastBackup'); }catch(e){}
+  const el = document.getElementById('backupNote'); if(!el) return;
+  el.textContent = last ? 'Last backup: ' + fmt(parseKey(last)) : 'No backup yet — download one every week or two.';
+}
+
+// ---------- actions ----------
+function mutate(fn){
+  const d = day(selKey); const wasDone = isDone(d);
+  fn(d); days[selKey] = d; saveDay(selKey); render();
+  if(!wasDone && isDone(d)) toast('🙏 Day ' + dayIndex(selKey) + ' complete');
+}
+function dayIndex(k){ return diffDays(parseKey(settings.start), parseKey(k)) + 1; }
+
+function addRecitation(){
+  mutate(d => { d[session] = (d[session]||0) + 1; });
+  const d = day(selKey), t = targets(d)[session];
+  if(navigator.vibrate) try{ navigator.vibrate(d[session]>=t ? [30,60,30] : 18); }catch(e){}
+  if(d[session] === t) toast(session==='m' ? '☀️ Morning ×'+t+' complete' : '🪔 Evening ×'+t+' complete');
+}
+
+// meditation timer
+let medTimer = null, medEnd = 0, medFor = null;
+function startMed(which){
+  if(medTimer){ clearInterval(medTimer); medTimer = null; if(medFor===which){ medFor=null; render(); return; } }
+  medFor = which; medEnd = Date.now() + 5*60*1000;
+  medTimer = setInterval(()=>{
+    if(Date.now() >= medEnd){
+      clearInterval(medTimer); medTimer = null; const w = medFor; medFor = null;
+      mutate(d => { d[w] = true; }); chime(); toast('🧘 Meditation complete');
+    } else renderChecks();
+  }, 500);
+  try{ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+  renderChecks();
+}
+let audioCtx = null;
+function chime(){
+  try{ if(!audioCtx) return; const t = audioCtx.currentTime;
+    [528,792].forEach((f,i)=>{ const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.frequency.value=f; o.type='sine';
+      g.gain.setValueAtTime(0.0001,t+i*.15); g.gain.exponentialRampToValueAtTime(0.25,t+i*.15+.02); g.gain.exponentialRampToValueAtTime(0.0001,t+i*.15+2.5);
+      o.connect(g).connect(audioCtx.destination); o.start(t+i*.15); o.stop(t+i*.15+2.6); });
+  }catch(e){}
+}
+
+function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(()=>t.classList.remove('show'), 2200); }
+
+// ---------- render ----------
+function render(){
+  todayKey = keyOf(new Date());
+  const start = parseKey(settings.start);
+  const today = parseKey(todayKey);
+  const idxToday = diffDays(start, today) + 1;
+
+  // stats
+  let done = 0, miss = 0, streak = 0;
+  const lastPast = Math.min(idxToday, TOTAL);
+  for(let i=1;i<=lastPast;i++){
+    const k = keyOf(addDays(start,i-1)); const d = day(k);
+    if(isDone(d)) done++; else if(i < idxToday) miss++;
+  }
+  // streak: count back from today (today counts if done, else from yesterday)
+  for(let i=Math.min(idxToday,TOTAL); i>=1; i--){
+    const k = keyOf(addDays(start,i-1));
+    if(isDone(day(k))) streak++; else if(i===idxToday) continue; else break;
+  }
+  document.getElementById('dayNum').textContent = idxToday < 1 ? '–' : Math.min(idxToday, TOTAL);
+  document.getElementById('sDone').textContent = done;
+  document.getElementById('sStreak').textContent = streak;
+  document.getElementById('sMiss').textContent = miss;
+  document.getElementById('ringArc').setAttribute('stroke-dashoffset', 289 - 289*Math.min(done/TOTAL,1));
+  const end = addDays(start, TOTAL-1);
+  document.getElementById('miles').innerHTML = idxToday < 1
+    ? `Begins <b>${fmt(start)}</b>.`
+    : `Day 960 falls on <b>${fmt(end)}</b>. The 16-night puruscharana starts on the next Diwali night after that${settings.start==='2026-11-08' ? ' — <b>5 Nov 2029</b> (Gayatri permission on 4 Nov)' : ''}.`;
+
+  // selected day
+  const sel = parseKey(selKey); const d = day(selKey); const t = targets(d);
+  const si = dayIndex(selKey);
+  document.getElementById('dayTitle').textContent = (selKey===todayKey ? 'Today · ' : '') + fmt(sel,{weekday:'short',day:'numeric',month:'short'}) + (si>=1 && si<=TOTAL ? ` · Day ${si}` : '');
+  const b = document.getElementById('dayBadge');
+  b.className = 'badge' + (isDone(d) ? ' done' : '');
+  b.textContent = isDone(d) ? '✓ Complete' : (selKey < todayKey ? (hasAny(d) ? 'Partial' : 'Not logged') : 'In progress');
+  document.getElementById('prevDay').disabled = selKey <= settings.start;
+  document.getElementById('nextDay').disabled = selKey >= todayKey;
+
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.s===session));
+  const mDone = d.m>=t.m && d.mm, eDone = d.e>=t.e && d.em;
+  document.getElementById('tabM').innerHTML = mDone ? '<span class="tick">✓</span>' : `${Math.min(d.m,t.m)}/${t.m}`;
+  document.getElementById('tabE').innerHTML = eDone ? '<span class="tick">✓</span>' : `${Math.min(d.e,t.e)}/${t.e}`;
+
+  const n = d[session], target = t[session];
+  const beads = document.getElementById('beads'); beads.innerHTML = '';
+  for(let i=0;i<target;i++){ const x = document.createElement('span'); x.className = 'bead' + (i<n ? ' full' : ''); beads.appendChild(x); }
+  document.getElementById('tapNum').textContent = n;
+  document.getElementById('tapLbl').textContent = n>=target ? (n>target ? `${n-target} extra · complete` : 'complete 🙏') : `of ${target} · tap after each`;
+  document.getElementById('tap').classList.toggle('complete', n>=target);
+  document.getElementById('undo').disabled = n<=0;
+  document.getElementById('makeup').checked = !!d.makeup;
+  document.getElementById('celebrate').classList.toggle('show', isDone(d));
+  document.getElementById('openReader').textContent = `📖 Read ${session==='m'?'morning':'evening'} recitation`;
+
+  renderChecks(); renderGrid(start, idxToday); renderScriptSegs(); renderReaderBar();
+  document.getElementById('startDate').value = settings.start;
+}
+
+function renderChecks(){
+  const d = day(selKey); const box = document.getElementById('checks');
+  const items = session==='m'
+    ? [['bath','Bath','after waking'],['lamp','Lamp lit at the altar',''],['tilak','Saffron tilak','with the ring finger'],['mm','Meditate 5 min on Sri & Vishnu','seat them in your heart', true]]
+    : [['elamp','Wash, tilak & evening lamp','bath advisable, not required'],['em','Meditate 5 min before sleep','seat Sri & Vishnu in your heart chakra', true]];
+  box.innerHTML = '';
+  for(const [k,l,s,med] of items){
+    const row = document.createElement('label'); row.className = 'check';
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!d[k];
+    cb.onchange = () => mutate(x => { x[k] = cb.checked; });
+    const lbl = document.createElement('span'); lbl.className='lbl'; lbl.textContent = l;
+    if(s){ const sm = document.createElement('small'); sm.textContent = s; lbl.appendChild(sm); }
+    row.append(cb,lbl);
+    if(med){
+      const tb = document.createElement('button'); tb.className='timer'; tb.type='button';
+      if(medFor===k){ const left = Math.max(0, medEnd-Date.now()); tb.textContent = `⏸ ${Math.floor(left/60000)}:${pad(Math.floor(left/1000)%60)}`; }
+      else tb.textContent = '▶ 5:00';
+      tb.onclick = e => { e.preventDefault(); startMed(k); };
+      row.appendChild(tb);
+    }
+    box.appendChild(row);
+  }
+}
+
+function renderGrid(start, idxToday){
+  const g = document.getElementById('grid'); g.innerHTML = '';
+  const show = Math.max(1, Math.min(TOTAL, Math.max(idxToday, 0) + 30));
+  const frag = document.createDocumentFragment();
+  for(let i=1;i<=show;i++){
+    const dt = addDays(start,i-1), k = keyOf(dt), d = day(k);
+    const c = document.createElement('button'); c.className = 'cell';
+    if(k > todayKey){ c.disabled = true; }
+    else if(isDone(d)) c.classList.add('done');
+    else if(hasAny(d)) c.classList.add('part');
+    else if(k < todayKey) c.classList.add('miss');
+    if(k===todayKey) c.classList.add('today');
+    if(k===selKey && k!==todayKey) c.classList.add('sel');
+    c.title = `Day ${i} · ${fmt(dt)}`;
+    if(k <= todayKey) c.onclick = () => { selKey = k; render(); window.scrollTo({top: document.querySelector('.dayhead').offsetTop - 20, behavior:'smooth'}); };
+    frag.appendChild(c);
+  }
+  g.appendChild(frag);
+  document.getElementById('gridInfo').textContent = idxToday>=1 ? `${Math.round(Math.min(idxToday,TOTAL)/TOTAL*100)}% of the way` : '';
+}
+
+function renderScriptSegs(){
+  document.querySelectorAll('#scriptSeg button, #rScriptSeg button').forEach(b => b.classList.toggle('active', b.dataset.v===settings.script));
+}
+
+// ---------- reader ----------
+const INVOC = { tel:'ఓం', dev:'ॐ', iast:'oṃ' };
+function renderVerses(){
+  const s = settings.script;
+  document.getElementById('invoc').textContent = INVOC[s];
+  const box = document.getElementById('verses'); box.innerHTML = '';
+  const nums = s==='tel' ? '౧౨౩౪౫౬౭౮౯' : s==='dev' ? '१२३४५६७८९' : null;
+  const z = s==='tel' ? '౦' : '०';
+  const numStr = n => nums ? String(n).split('').map(c => c==='0' ? z : nums[+c-1]).join('') : String(n);
+  VERSES.forEach((v,i) => {
+    const el = document.createElement('div'); el.className = 'verse'; el.id = 'v'+(i+1);
+    const vn = document.createElement('div'); vn.className='vn'; vn.textContent = numStr(i+1) + (i===15 ? '  · phalaśruti' : '');
+    el.appendChild(vn);
+    v[s].forEach(line => { const p = document.createElement('div'); p.className = 'ln s-'+s; p.style.fontSize = settings.font+'px'; p.textContent = line; el.appendChild(p); });
+    el.onclick = () => { document.querySelectorAll('.verse.lit').forEach(x=>x.classList.remove('lit')); el.classList.add('lit'); };
+    box.appendChild(el);
+  });
+}
+function renderReaderBar(){
+  const d = day(selKey), t = targets(d)[session], n = d[session];
+  document.getElementById('rSub').textContent = session==='m' ? 'Morning recitation' : 'Evening recitation';
+  document.getElementById('rProg').innerHTML = n>=t ? `<b>${n}</b> recitations · ${session==='m'?'morning':'evening'} complete 🙏` : `Recitation <b>${n+1}</b> of ${t}`;
+}
+function openReader(){
+  renderVerses(); document.getElementById('reader').classList.add('open');
+  document.getElementById('rbody').scrollTop = 0; render();
+}
+function closeReader(){ document.getElementById('reader').classList.remove('open'); render(); }
+
+// ---------- wire ----------
+document.getElementById('tap').onclick = addRecitation;
+document.getElementById('undo').onclick = () => mutate(d => { d[session] = Math.max(0,(d[session]||0)-1); });
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => { session = t.dataset.s; render(); });
+document.getElementById('prevDay').onclick = () => { selKey = keyOf(addDays(parseKey(selKey),-1)); render(); };
+document.getElementById('nextDay').onclick = () => { selKey = keyOf(addDays(parseKey(selKey),1)); render(); };
+document.getElementById('makeup').onchange = e => mutate(d => { d.makeup = e.target.checked; });
+document.getElementById('openReader').onclick = openReader;
+document.getElementById('closeReader').onclick = closeReader;
+document.getElementById('rDone').onclick = () => {
+  addRecitation(); renderReaderBar();
+  document.getElementById('rbody').scrollTo({top:0, behavior:'smooth'});
+  document.querySelectorAll('.verse.lit').forEach(x=>x.classList.remove('lit'));
+  const d = day(selKey); if(d[session] >= targets(d)[session] && d[session] === targets(d)[session]) setTimeout(closeReader, 900);
+};
+document.getElementById('fontUp').onclick = () => { settings.font = Math.min(34, settings.font+2); saveSettings(); renderVerses(); };
+document.getElementById('fontDown').onclick = () => { settings.font = Math.max(14, settings.font-2); saveSettings(); renderVerses(); };
+document.querySelectorAll('#scriptSeg button, #rScriptSeg button').forEach(b => b.onclick = () => { settings.script = b.dataset.v; saveSettings(); renderScriptSegs(); if(document.getElementById('reader').classList.contains('open')) renderVerses(); });
+document.getElementById('startDate').onchange = e => { if(e.target.value){ settings.start = e.target.value; if(selKey < settings.start) selKey = todayKey; saveSettings(); render(); if(PUSH.on) syncPush(true); } };
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ const nk = keyOf(new Date()); if(nk !== todayKey){ if(selKey===todayKey) selKey = nk; render(); } } });
+
+document.getElementById('backupBtn').onclick = backup;
+document.getElementById('restoreBtn').onclick = () => document.getElementById('restoreFile').click();
+document.getElementById('restoreFile').onchange = e => { if(e.target.files[0]) restore(e.target.files[0]); e.target.value=''; };
+
+// ---------- reminders ----------
+const REM_DEFAULT = [
+  {id:'m', ic:'☀️', t:'07:00', title:'Sri Suktam — morning ×11', desc:'Bath, lamp, saffron tilak, Sri Suktam 11 times, 5-minute meditation on Sri & Vishnu.'},
+  {id:'e', ic:'🪔', t:'18:00', title:'Sri Suktam — evening ×5', desc:'Wash, tilak, evening lamp, Sri Suktam 5 times.'},
+  {id:'n', ic:'🌙', t:'22:00', title:'Sri Suktam — meditate & check in', desc:'5-minute meditation before sleep, then mark today complete in the tracker.'}
+];
+function remList(){ const t = settings.remTimes || {}; return REM_DEFAULT.map(r => Object.assign({}, r, {t: t[r.id] || r.t})); }
+function icsDate(d, hm){ return keyOf(d).replace(/-/g,'') + 'T' + hm.replace(':','') + '00'; }
+function appUrl(){ return /^https?:/.test(location.href) ? location.href.split('#')[0] : ''; }
+function buildICS(){
+  const now = new Date(), stamp = now.toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Sri Suktam Tracker//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  for(const r of remList()){
+    const url = appUrl();
+    lines.push('BEGIN:VEVENT',
+      'UID:srisuktam-' + r.id + '-' + settings.start + '@tracker',
+      'DTSTAMP:' + stamp,
+      'DTSTART;TZID=' + tz + ':' + icsDate(now, r.t),
+      'DURATION:PT15M',
+      'RRULE:FREQ=DAILY;COUNT=1100',
+      'SUMMARY:' + r.title,
+      'DESCRIPTION:' + r.desc.replace(/,/g,'\\,') + (url ? '\\n' + url : ''),
+      ...(url ? ['URL:' + url] : []),
+      'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:' + r.title,'TRIGGER:PT0M','END:VALARM',
+      'END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+function downloadICS(){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([buildICS()], {type:'text/calendar'}));
+  a.download = 'sri-suktam-reminders.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Calendar file downloaded — open it to add');
+}
+function gcalLink(r){
+  const d = new Date(), s = icsDate(d, r.t);
+  const [h,m] = r.t.split(':').map(Number); const e = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m + 15);
+  const end = keyOf(e).replace(/-/g,'') + 'T' + pad(e.getHours()) + pad(e.getMinutes()) + '00';
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+  const p = new URLSearchParams({action:'TEMPLATE', text:r.title, details:r.desc + (appUrl() ? '\n' + appUrl() : ''), dates:s + '/' + end, ctz:tz, recur:'RRULE:FREQ=DAILY;COUNT=1100'});
+  return 'https://calendar.google.com/calendar/render?' + p.toString();
+}
+function renderRems(){
+  const box = document.getElementById('rems'); box.innerHTML = '';
+  const gl = document.getElementById('gcalLinks'); gl.innerHTML = '';
+  for(const r of remList()){
+    const row = document.createElement('div'); row.className = 'rem';
+    const ic = document.createElement('span'); ic.className = 'ic'; ic.textContent = r.ic;
+    const tx = document.createElement('span'); tx.className = 'tx'; tx.textContent = r.title.replace('Sri Suktam — ','').replace(/^./, c => c.toUpperCase());
+    const sm = document.createElement('small'); sm.textContent = r.desc; tx.appendChild(sm);
+    const tm = document.createElement('input'); tm.type = 'time'; tm.value = r.t;
+    tm.onchange = () => { if(!tm.value) return; settings.remTimes = Object.assign({}, settings.remTimes, {[r.id]: tm.value}); saveSettings(); renderRems(); if(PUSH.on) syncPush(); };
+    row.append(ic, tx, tm); box.appendChild(row);
+    const a = document.createElement('a'); a.href = gcalLink(r); a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = '+ Google ' + r.ic; a.style.cssText = 'font-size:13px;font-weight:600;color:var(--accent);text-decoration:none';
+    gl.appendChild(a);
+  }
+}
+
+// ---------- push notifications (Netlify) ----------
+const PUSH = { reg:null, sub:null, on:false, busy:false, ready:false };
+const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const STANDALONE = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const ONLINE_SITE = /^https?:$/.test(location.protocol);
+function pushCapable(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+function b64ToBytes(b){ const p = '='.repeat((4 - b.length % 4) % 4); const s = atob((b + p).replace(/-/g,'+').replace(/_/g,'/')); return Uint8Array.from(s, c => c.charCodeAt(0)); }
+function remTimes(){ const o = {}; remList().forEach(r => o[r.id] = r.t); return o; }
+async function api(body){
+  const r = await fetch('/api/push', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body)});
+  const j = await r.json().catch(() => ({}));
+  if(!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+async function initPush(){
+  if(ONLINE_SITE && 'serviceWorker' in navigator){
+    try{
+      PUSH.reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+      if('PushManager' in window){ PUSH.sub = await PUSH.reg.pushManager.getSubscription(); PUSH.on = !!PUSH.sub && Notification.permission === 'granted'; }
+    }catch(e){}
+  }
+  PUSH.ready = true; renderPush();
+  if(PUSH.on){ syncPush(true); }
+}
+async function enablePush(){
+  if(PUSH.busy) return; PUSH.busy = true; renderPush();
+  try{
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){ toast('Notifications not allowed'); return; }
+    const { publicKey } = await (await fetch('/api/push')).json();
+    const key = b64ToBytes(publicKey);
+    let sub = await PUSH.reg.pushManager.getSubscription();
+    try{ if(!sub) sub = await PUSH.reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:key}); }
+    catch(e){ if(sub) await sub.unsubscribe(); sub = await PUSH.reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:key}); }
+    PUSH.sub = sub;
+    await api({action:'subscribe', subscription: sub.toJSON(), times: remTimes(), tz: TZ, start: settings.start});
+    PUSH.on = true; sendStatus(true); toast('🔔 Reminders are on');
+  }catch(e){ toast('Could not turn on: ' + e.message); }
+  finally{ PUSH.busy = false; renderPush(); }
+}
+async function disablePush(){
+  if(PUSH.busy) return; PUSH.busy = true; renderPush();
+  try{ if(PUSH.sub){ await api({action:'unsubscribe', subscription: PUSH.sub.toJSON()}).catch(()=>{}); await PUSH.sub.unsubscribe(); } PUSH.sub = null; PUSH.on = false; toast('Reminders turned off'); }
+  catch(e){ toast('Could not turn off: ' + e.message); }
+  finally{ PUSH.busy = false; renderPush(); }
+}
+async function testPush(){
+  if(!PUSH.sub) return;
+  try{ await api({action:'test', subscription: PUSH.sub.toJSON(), tz: TZ, start: settings.start}); toast('Test sent — check your notifications'); }
+  catch(e){ toast('Test failed: ' + e.message); }
+}
+async function syncPush(quiet){
+  if(!PUSH.sub) return;
+  try{ await api({action:'subscribe', subscription: PUSH.sub.toJSON(), times: remTimes(), tz: TZ, start: settings.start}); sendStatus(true); if(!quiet) toast('Reminder times updated'); }
+  catch(e){ if(!quiet) toast('Could not update: ' + e.message); }
+}
+// Tell the server what is already done today, so it skips reminders you no longer need.
+let statusTimer = null;
+function sendStatus(now){
+  if(!PUSH.on || !PUSH.sub) return;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => {
+    const k = keyOf(new Date()), d = day(k), t = targets(d);
+    api({action:'status', subscription: PUSH.sub.toJSON(), start: settings.start,
+         status:{date:k, m: d.m >= t.m && d.mm, e: d.e >= t.e, done: isDone(d)}}).catch(()=>{});
+  }, now ? 0 : 1500);
+}
+function renderPush(){
+  const box = document.getElementById('pushBox'), badge = document.getElementById('pushBadge');
+  if(!box) return;
+  const note = html => `<div class="note" style="margin-top:0">${html}</div>`;
+  badge.className = 'badge' + (PUSH.on ? ' done' : ''); badge.textContent = PUSH.on ? '✓ On' : 'Off';
+  if(!ONLINE_SITE){ box.innerHTML = note('Notifications start working once this app is on your Netlify site. Open the site on your phone to turn them on.'); return; }
+  if(!PUSH.ready){ box.innerHTML = note('Checking…'); return; }
+  if(IS_IOS && !STANDALONE){ box.innerHTML = note('<b>iPhone:</b> tap the Share button <b>⎋</b> → <b>Add to Home Screen</b>, then open <b>Sri Suktam</b> from your home screen and turn reminders on there. (Needs iOS 16.4 or later.)'); return; }
+  if(!pushCapable()){ box.innerHTML = note('This browser can\'t receive notifications. Try Chrome, or use the calendar option below.'); return; }
+  if(Notification.permission === 'denied'){ box.innerHTML = note('Notifications are blocked for this site. Allow them in your browser\'s site settings (tap the 🔒 next to the address), then reload.'); return; }
+  box.innerHTML = '';
+  const row = document.createElement('div'); row.className = 'row'; row.style.cssText = 'justify-content:flex-start;margin-top:0';
+  if(PUSH.on){
+    const t = document.createElement('button'); t.className = 'btn'; t.textContent = '🔔 Send test'; t.onclick = testPush;
+    const o = document.createElement('button'); o.className = 'btn ghost'; o.textContent = 'Turn off'; o.onclick = disablePush;
+    row.append(t, o);
+    box.appendChild(row);
+    box.insertAdjacentHTML('beforeend', note('Reminders you no longer need are skipped — e.g. no 10 PM nudge once the day is complete.'));
+  } else {
+    const b = document.createElement('button'); b.className = 'btn primary'; b.textContent = PUSH.busy ? 'Turning on…' : '🔔 Turn on reminders'; b.disabled = PUSH.busy; b.onclick = enablePush;
+    row.appendChild(b); box.appendChild(row);
+  }
+}
+document.getElementById('icsBtn').onclick = downloadICS;
+connect(); renderBackupNote(); renderRems(); renderPush(); initPush();
+</script>
+</body>
+</html>
